@@ -1,29 +1,25 @@
 #!/usr/bin/node
-// completed tasks of all users as object
 
 const request = require('request');
 
-const url = 'https://jsonplaceholder.typicode.com/todos';
-
-request(url, function (err, response, body) {
-  const userCompletedTasks = {};
-
+request(process.argv[2], function (err, _res, body) {
   if (err) {
     console.log(err);
-    return;
-  }
+  } else {
+    const completedTasksByUsers = {};
+    body = JSON.parse(body);
 
-  let resp = JSON.parse(body);
+    for (let i = 0; i < body.length; ++i) {
+      const userId = body[i].userId;
+      const completed = body[i].completed;
 
-  for (let i = 0; i < resp.length; i++) {
-    if (resp[i].completed === true) {
-      if (resp[i].userId in userCompletedTasks) {
-        userCompletedTasks[resp[i].userId] += 1;
-      } else {
-        userCompletedTasks[resp[i].userId] = 1;
+      if (completed && !completedTasksByUsers[userId]) {
+        completedTasksByUsers[userId] = 0;
       }
-    }
-  }
 
-  console.log(userCompletedTasks);
+      if (completed) ++completedTasksByUsers[userId];
+    }
+
+    console.log(completedTasksByUsers);
+  }
 });
